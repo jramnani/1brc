@@ -29,8 +29,9 @@ public class CalculateAverage_jramnani {
     private static final String FILE = "./measurements.txt";
 
     private static record Measurement(String station, double value) {
-        private Measurement(String[] parts) {
-            this(parts[0], Double.parseDouble(parts[1]));
+        private static Measurement fromLine(String line) {
+            int delimiterPosition = line.indexOf(';');
+            return new Measurement(line.substring(0, delimiterPosition), Double.parseDouble(line.substring(delimiterPosition + 1)));
         }
     }
 
@@ -84,7 +85,7 @@ public class CalculateAverage_jramnani {
 
         Map<String, ResultRow> measurements = new TreeMap<>(Files.lines(Paths.get(FILE))
                 .parallel()
-                .map(l -> new Measurement(l.split(";")))
+                .map(Measurement::fromLine)
                 .collect(groupingBy(m -> m.station(), collector)));
 
         System.out.println(measurements);
